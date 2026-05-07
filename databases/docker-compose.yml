@@ -1,0 +1,57 @@
+services:
+  database:
+    image: postgres:17
+    container_name: dodo-db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+    POSTGRES_USER: ${DB_USER}
+    POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 5435:5432
+    volumes:
+      - dodo-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready -U ${DB_USER}' ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: always
+
+  migrations:
+    image: flyway/flyway:11.11
+    container_name: dodo-migrations
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - ./migrations/sql:/migrations/sql:ro
+      - ./migrations/config:/migrations/config:ro
+    env_file:
+      - .env
+    environment:
+      FLYWAY_URL: jdbc:postgresql://dodo-db:5432/${DB_NAME}
+      FLYWAY_USER: ${DB_USER}
+      FLYWAY_PASSWORD: ${DB_PASSWORD}
+    command: >
+      -configFiles=/migrations/config/flyway.conf migrate
+    restart: 'no'
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dodo-pgadmin
+    env_file:
+      - .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - 5050:80
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: always
+
+volumes:
+  dodo-db:
+  pgadmin_data:
