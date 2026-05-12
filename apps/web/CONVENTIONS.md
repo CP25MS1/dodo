@@ -37,7 +37,19 @@ function MyComponent() {
 ```
 
 ## Testing
-- All test files (unit and E2E) are organized inside the `apps/web` directory.
-- Follow standard practices for co-location or a dedicated `__tests__` folder.
-- **Unit tests**: Typically use `.test.tsx` or `.spec.tsx` suffixes alongside the file they test.
-- **E2E tests**: Organized within the `web` directory following the framework's standard (e.g., in an `e2e` folder or with `.e2e.test.ts` suffixes).
+## Testing
+- **Unit tests**: Co-locate unit test files next to the files they test (same directory). Use `.test.tsx` or `.spec.tsx` suffixes. Prefer co-location over a central `__tests__` folder.
+
+- **E2E tests**: Keep all end-to-end tests under an `e2e/` directory at the project root. Recommended structure:
+
+```
+├── e2e/
+│   ├── fixtures/           # Static data (JSON, images) for test scenarios
+│   ├── helpers/            # Reusable utility functions
+│   ├── specs/              # Actual test files (.spec.ts or .test.ts)
+│   │   ├── auth.spec.ts
+│   │   └── checkout.spec.ts
+│   └── support/            # Custom commands, global setup/teardown
+├── playwright.config.ts    # Framework configuration file
+└── .env                    # Environment-specific variables (URLs, credentials)
+```
